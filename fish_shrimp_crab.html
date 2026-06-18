@@ -1,0 +1,1191 @@
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>魚蝦蟹金錢葫蘆雞</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f0f0;
+      overflow: hidden;
+      position: relative;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 3em;  
+    }
+
+    .message {
+      position: absolute;
+      left: 180px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
+      font-size: 24px;
+      color: #333;
+      animation: messageFloat 1.5s ease-in-out infinite,
+                 messageColor 6s linear infinite;
+    }
+
+    @keyframes messageFloat {
+      0%, 100% {
+        transform: translateY(-60%);
+      }
+      50% {
+        transform: translateY(-40%);
+      }
+    }
+
+    @keyframes messageColor {
+      0%, 100% {
+        color: #d4373d;
+      }
+      33.33% {
+        color: #0066cc;
+      }
+      66.66% {
+        color: #009933;
+      }
+    }
+
+    .forecast {
+      position: absolute;
+      right: 120px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .forecast-title {
+      font-size: 24px;
+      color: #d4373d;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .forecast-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .forecast-option {
+      padding: 8px 16px;
+      border: 2px solid #d4373d;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .forecast-option.active {
+      background-color: #d4373d;
+      color: white;
+    }
+
+    .forecast-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 200px;
+    }
+
+    .forecast-item {
+      font-size: 20px;
+      padding: 8px;
+      border-radius: 5px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .dice-container {
+      display: flex;
+      gap: 2rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .dice {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+    }
+
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px solid #333;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      color: #d4373d;
+    }
+
+    .face svg {
+      width: 90%;
+      height: 90%;
+    }
+
+    .front  { transform: translateZ(60px); }
+    .back   { transform: rotateX(-180deg) translateZ(60px); }
+    .right  { transform: rotateY(90deg) translateZ(60px); }
+    .left   { transform: rotateY(-90deg) translateZ(60px); }
+    .top    { transform: rotateX(90deg) translateZ(60px); }
+    .bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background: #d4373d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #b32d32;
+    }
+
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    .rolling {
+      animation: roll 1s;
+    }
+
+    @keyframes roll {
+      0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+      100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(720deg); }
+    }
+
+    .continuous-rolling {
+      animation: roll 2s linear infinite;
+      animation-delay: 0s;
+    }
+
+    .symbol-text {
+      font-size: 64px;
+      fill: currentColor;
+      font-family: "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
+      font-weight: bold;
+      dominant-baseline: middle;
+    }
+
+    .symbol-text.two-chars {
+      font-size: 48px;
+    }
+
+    .english-text {
+      font-size: 16px;
+      fill: currentColor;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      dominant-baseline: middle;
+    }
+
+    .blue-text {
+      color: #0066cc;
+    }
+
+    .green-text {
+      color: #009933;
+    }
+
+    .forecast-item[data-symbol='金錢'],
+    .forecast-item[data-symbol='葫蘆'] {
+      color: #d4373d;
+    }
+
+    .forecast-item[data-symbol='魚'],
+    .forecast-item[data-symbol='雞'] {
+      color: #0066cc;
+    }
+
+    .forecast-item[data-symbol='蝦'],
+    .forecast-item[data-symbol='蟹'] {
+      color: #009933;
+    }
+    
+    .dancing-girl-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .dancing-girl {
+      position: static;
+      width: 104px;
+      height: 104px;
+    }
+
+    .dancer {
+      animation: dance 1.5s infinite alternate;
+    }
+
+    @keyframes dance {
+      0% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+      100% { transform: rotate(-10deg); }
+    }
+
+    .forecast-generate-btn {
+      display: block;
+      margin: 15px auto;
+      padding: 10px 20px;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .forecast-generate-btn:hover {
+      background-color: #004499;
+    }
+
+    .forecast-generate-btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+  
+
+    /* Android / mobile responsive layout fix */
+    :root {
+      --dice-size: clamp(92px, 25vw, 126px);
+      --dice-half: calc(var(--dice-size) / 2);
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      height: 100dvh;
+      padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
+    }
+
+    .container {
+      width: min(100%, 720px);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      transform-origin: center center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.65rem, 7vw, 3rem);
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .dice-container {
+      gap: clamp(1rem, 5vw, 2rem);
+      margin: 0.7rem 0;
+      width: 100%;
+    }
+
+    .dice {
+      width: var(--dice-size);
+      height: var(--dice-size);
+    }
+
+    .front  { transform: translateZ(var(--dice-half)); }
+    .back   { transform: rotateX(-180deg) translateZ(var(--dice-half)); }
+    .right  { transform: rotateY(90deg) translateZ(var(--dice-half)); }
+    .left   { transform: rotateY(-90deg) translateZ(var(--dice-half)); }
+    .top    { transform: rotateX(90deg) translateZ(var(--dice-half)); }
+    .bottom { transform: rotateX(-90deg) translateZ(var(--dice-half)); }
+
+    .symbol-text { font-size: clamp(48px, 15vw, 64px); }
+    .symbol-text.two-chars { font-size: clamp(38px, 12vw, 48px); }
+    .english-text { font-size: clamp(13px, 3.5vw, 16px); }
+
+    .message,
+    .forecast {
+      z-index: 3;
+    }
+
+    .dancing-girl-container {
+      flex-wrap: nowrap;
+      gap: clamp(0.7rem, 4vw, 1.2rem);
+      width: 100%;
+    }
+
+    .dancing-girl-container button {
+      min-width: 0;
+      padding: 0.85rem clamp(1rem, 4vw, 2rem);
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      white-space: nowrap;
+    }
+
+    .dancing-girl {
+      width: 42px;
+      height: 42px;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .container {
+        transform: scale(1.18);
+        padding-top: 0;
+      }
+
+      .message {
+        left: 12px;
+        top: calc(50% - 88px);
+        transform: none;
+        font-size: clamp(13px, 3.8vw, 18px);
+        white-space: nowrap;
+        max-width: 38vw;
+      }
+
+      @keyframes messageFloat {
+        0%, 100% { transform: translateY(-6px); }
+        50% { transform: translateY(6px); }
+      }
+
+      .forecast {
+        right: 10px;
+        top: calc(50% - 122px);
+        transform: none;
+        padding: 0;
+        width: 34vw;
+        max-width: 150px;
+      }
+
+      .forecast-title {
+        font-size: clamp(13px, 3.7vw, 18px);
+        margin-bottom: 8px;
+        line-height: 1.15;
+      }
+
+      .forecast-controls {
+        gap: 5px;
+        margin-bottom: 8px;
+      }
+
+      .forecast-option {
+        padding: 6px 9px;
+        font-size: 12px;
+        border-width: 1px;
+      }
+
+      .forecast-generate-btn {
+        margin: 8px auto;
+        padding: 8px 10px;
+        font-size: 12px;
+        max-width: 100%;
+      }
+
+      .forecast-items {
+        min-height: 70px;
+        gap: 5px;
+      }
+
+      .forecast-item {
+        font-size: 13px;
+        padding: 4px;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 420px) {
+      :root {
+        --dice-size: clamp(86px, 26vw, 102px);
+      }
+
+      .container {
+        transform: scale(1.25);
+      }
+
+      .dice-container {
+        gap: 1rem;
+      }
+
+      .message {
+        top: calc(50% - 83px);
+        left: 8px;
+        font-size: 13px;
+      }
+
+      .forecast {
+        top: calc(50% - 118px);
+        right: 8px;
+        width: 35vw;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .container {
+        transform: scale(1.12);
+      }
+      .dice-container { gap: 0.75rem; }
+      .dancing-girl-container button { padding-left: 0.75rem; padding-right: 0.75rem; }
+    }
+
+  
+/* === v2.1 Android vertical layout: main block first, side blocks below === */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+  }
+
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 22px 10px 28px !important;
+    gap: 16px;
+  }
+
+  .container {
+    order: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    transform: none !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 7.3vw, 2.35rem) !important;
+    line-height: 1.1;
+    margin: 0 0 4px !important;
+    white-space: nowrap;
+  }
+
+  .dice-container {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap !important;
+    justify-content: center;
+    gap: clamp(10px, 3.2vw, 16px) !important;
+    margin: 8px 0 10px !important;
+  }
+
+  :root {
+    --dice-size: clamp(92px, 28vw, 112px);
+    --dice-half: calc(var(--dice-size) / 2);
+  }
+
+  .dice {
+    width: var(--dice-size) !important;
+    height: var(--dice-size) !important;
+    flex: 0 0 var(--dice-size);
+  }
+
+  .front  { transform: translateZ(var(--dice-half)) !important; }
+  .back   { transform: rotateX(-180deg) translateZ(var(--dice-half)) !important; }
+  .right  { transform: rotateY(90deg) translateZ(var(--dice-half)) !important; }
+  .left   { transform: rotateY(-90deg) translateZ(var(--dice-half)) !important; }
+  .top    { transform: rotateX(90deg) translateZ(var(--dice-half)) !important; }
+  .bottom { transform: rotateX(-90deg) translateZ(var(--dice-half)) !important; }
+
+  .symbol-text { font-size: clamp(46px, 13vw, 58px) !important; }
+  .symbol-text.two-chars { font-size: clamp(36px, 10.5vw, 44px) !important; }
+  .english-text { font-size: clamp(12px, 3.3vw, 15px) !important; }
+
+  .dancing-girl-container {
+    width: 100%;
+    max-width: 380px;
+    justify-content: center;
+    gap: 12px !important;
+    flex-wrap: nowrap;
+  }
+
+  .dancing-girl-container button {
+    padding: 11px 14px !important;
+    font-size: clamp(0.95rem, 3.8vw, 1.08rem) !important;
+    white-space: nowrap;
+  }
+
+  .dancing-girl {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 32px !important;
+  }
+
+  .message {
+    order: 3;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 100%;
+    max-width: 420px;
+    margin: 8px auto 0 !important;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: clamp(1.05rem, 4.8vw, 1.35rem) !important;
+    white-space: nowrap;
+    background: rgba(255,255,255,0.78);
+    border-radius: 10px;
+  }
+
+  @keyframes messageFloat {
+    0%, 100% { transform: translateY(-3px); }
+    50% { transform: translateY(3px); }
+  }
+
+  .forecast {
+    order: 2;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 420px !important;
+    margin: 0 auto !important;
+    padding: 12px 10px !important;
+    background: rgba(255,255,255,0.78);
+    border-radius: 10px;
+  }
+
+  .forecast-title {
+    font-size: clamp(1.05rem, 4.8vw, 1.35rem) !important;
+    margin-bottom: 10px !important;
+    line-height: 1.2;
+  }
+
+  .forecast-controls {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+    flex-wrap: nowrap;
+  }
+
+  .forecast-option {
+    padding: 7px 13px !important;
+    font-size: 14px !important;
+    border-width: 1px !important;
+  }
+
+  .forecast-generate-btn {
+    margin: 10px auto !important;
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+  }
+
+  .forecast-items {
+    min-height: 48px !important;
+    gap: 6px !important;
+    align-items: center;
+  }
+
+  .forecast-item {
+    font-size: 16px !important;
+    padding: 5px 8px !important;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --dice-size: 88px;
+    --dice-half: 44px;
+  }
+
+  .dice-container {
+    gap: 8px !important;
+  }
+
+  .dancing-girl-container {
+    gap: 8px !important;
+  }
+
+  .dancing-girl-container button {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    font-size: 0.92rem !important;
+  }
+}
+
+  
+/* === FINAL Android APK layout fix: real vertical layout, no side overlap === */
+@media (max-width: 1200px) {
+  html, body {
+    width: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 18px 8px 30px !important;
+    gap: 16px !important;
+    background: #f0f0f0 !important;
+    overflow-y: auto !important;
+  }
+
+  .container {
+    order: 1 !important;
+    position: static !important;
+    width: 96vw !important;
+    max-width: 390px !important;
+    margin: 0 auto !important;
+    padding: 12px 6px !important;
+    transform: none !important;
+    background: rgba(255,255,255,0.88) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.10) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    text-align: center !important;
+  }
+
+  h1 {
+    margin: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: clamp(1.65rem, 7.6vw, 2.35rem) !important;
+    line-height: 1.12 !important;
+    white-space: nowrap !important;
+  }
+
+  .dice-container {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: clamp(9px, 4.2vw, 18px) !important;
+    margin: 8px 0 10px !important;
+  }
+
+  :root {
+    --dice-size: clamp(86px, 27vw, 112px);
+    --dice-half: calc(var(--dice-size) / 2);
+  }
+
+  .dice {
+    width: var(--dice-size) !important;
+    height: var(--dice-size) !important;
+    flex: 0 0 var(--dice-size) !important;
+  }
+
+  .front  { transform: translateZ(var(--dice-half)) !important; }
+  .back   { transform: rotateX(-180deg) translateZ(var(--dice-half)) !important; }
+  .right  { transform: rotateY(90deg) translateZ(var(--dice-half)) !important; }
+  .left   { transform: rotateY(-90deg) translateZ(var(--dice-half)) !important; }
+  .top    { transform: rotateX(90deg) translateZ(var(--dice-half)) !important; }
+  .bottom { transform: rotateX(-90deg) translateZ(var(--dice-half)) !important; }
+
+  .symbol-text { font-size: clamp(44px, 12.5vw, 58px) !important; }
+  .symbol-text.two-chars { font-size: clamp(35px, 10.5vw, 45px) !important; }
+  .english-text { font-size: clamp(11px, 3.2vw, 15px) !important; }
+
+  .dancing-girl-container {
+    width: 100% !important;
+    max-width: 380px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: clamp(12px, 5vw, 22px) !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .dancing-girl-container button {
+    margin: 0 !important;
+    padding: 11px 14px !important;
+    font-size: clamp(0.95rem, 3.8vw, 1.1rem) !important;
+    white-space: nowrap !important;
+  }
+
+  .dancing-girl {
+    width: 47px !important;
+    height: 47px !important;
+    font-size: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+  }
+
+  .forecast {
+    order: 2 !important;
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 92vw !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    padding: 12px 10px !important;
+    background: rgba(255,255,255,0.82) !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+    font-family: "Microsoft JhengHei", "Microsoft YaHei", sans-serif !important;
+    z-index: 1 !important;
+  }
+
+  .forecast-title {
+    font-size: clamp(1.05rem, 4.8vw, 1.35rem) !important;
+    line-height: 1.2 !important;
+    margin: 0 0 10px !important;
+    color: #d4373d !important;
+  }
+
+  .forecast-controls {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .forecast-option {
+    padding: 7px 13px !important;
+    font-size: 14px !important;
+    border-width: 1px !important;
+    white-space: nowrap !important;
+  }
+
+  .forecast-generate-btn {
+    display: block !important;
+    margin: 10px auto !important;
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+  }
+
+  .forecast-items {
+    min-height: 40px !important;
+    gap: 6px !important;
+    align-items: center !important;
+  }
+
+  .forecast-item {
+    font-size: 16px !important;
+    padding: 5px 8px !important;
+    white-space: nowrap !important;
+  }
+
+  .message {
+    order: 3 !important;
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 92vw !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    padding: 12px 10px !important;
+    text-align: center !important;
+    font-size: clamp(1.05rem, 4.8vw, 1.35rem) !important;
+    white-space: nowrap !important;
+    background: rgba(255,255,255,0.82) !important;
+    border-radius: 10px !important;
+    font-family: "Microsoft JhengHei", "Microsoft YaHei", sans-serif !important;
+    animation: messageColor 6s linear infinite !important;
+    z-index: 1 !important;
+  }
+
+  @keyframes messageFloat {
+    0%, 100% { transform: none; }
+    50% { transform: none; }
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --dice-size: 82px;
+    --dice-half: 41px;
+  }
+
+  h1 {
+    font-size: 1.55rem !important;
+  }
+
+  .dice-container {
+    gap: 8px !important;
+  }
+
+  .dancing-girl-container {
+    gap: 8px !important;
+  }
+
+  .dancing-girl-container button {
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>魚蝦蟹金錢葫蘆雞</h1>
+    <div class="dice-container">
+      <div class="dice" id="dice1">
+        <div class="face front">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text two-chars">金錢</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text">Gold Coin</text>
+          </svg>
+        </div>
+        <div class="face back">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text two-chars">葫蘆</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text">Gourd</text>
+          </svg>
+        </div>
+        <div class="face right">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text blue-text">雞</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text blue-text">Rooster</text>
+          </svg>
+        </div>
+        <div class="face left">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text blue-text">魚</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text blue-text">Carp</text>
+          </svg>
+        </div>
+        <div class="face top">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text green-text">蝦</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text green-text">Lobster</text>
+          </svg>
+        </div>
+        <div class="face bottom">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text green-text">蟹</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text green-text">Crab</text>
+          </svg>
+        </div>
+      </div>
+      <div class="dice" id="dice2">
+        <div class="face front">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text two-chars">金錢</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text">Gold Coin</text>
+          </svg>
+        </div>
+        <div class="face back">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text two-chars">葫蘆</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text">Gourd</text>
+          </svg>
+        </div>
+        <div class="face right">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text blue-text">雞</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text blue-text">Rooster</text>
+          </svg>
+        </div>
+        <div class="face left">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text blue-text">魚</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text blue-text">Carp</text>
+          </svg>
+        </div>
+        <div class="face top">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text green-text">蝦</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text green-text">Lobster</text>
+          </svg>
+        </div>
+        <div class="face bottom">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text green-text">蟹</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text green-text">Crab</text>
+          </svg>
+        </div>
+      </div>
+      <div class="dice" id="dice3">
+        <div class="face front">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text two-chars">金錢</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text">Gold Coin</text>
+          </svg>
+        </div>
+        <div class="face back">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text two-chars">葫蘆</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text">Gourd</text>
+          </svg>
+        </div>
+        <div class="face right">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text blue-text">雞</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text blue-text">Rooster</text>
+          </svg>
+        </div>
+        <div class="face left">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text blue-text">蝦</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text blue-text">Lobster</text>
+          </svg>
+        </div>
+        <div class="face top">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text green-text">蝦</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text green-text">Lobster</text>
+          </svg>
+        </div>
+        <div class="face bottom">
+          <svg viewBox="0 0 100 100">
+            <text x="50" y="45" text-anchor="middle" class="symbol-text green-text">蟹</text>
+            <text x="50" y="80" text-anchor="middle" class="english-text green-text">Crab</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="dancing-girl-container">
+      <button id="rollButton">擲骰子</button>
+      <div class="dancing-girl dancer">🐓</div>
+      <button id="stopButton" disabled>買定離手 - 開</button>
+    </div>
+  </div>
+  <div class="forecast">
+    <div class="forecast-title">路邊社山埃貼士</div>
+    <div class="forecast-controls">
+      <div class="forecast-option" data-items="1">1 項</div>
+      <div class="forecast-option active" data-items="2">2 項</div>
+      <div class="forecast-option" data-items="3">3 項</div>
+    </div>
+    <button id="generateForecastBtn" class="forecast-generate-btn">生成預測</button>
+    <div class="forecast-items"></div>
+  </div>
+  <div class="message">呢鋪買嘜好呢 ?</div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const rollButton = document.getElementById('rollButton');
+      const stopButton = document.getElementById('stopButton');
+      const generateForecastBtn = document.getElementById('generateForecastBtn');
+      const dices = Array.from(document.querySelectorAll('.dice'));
+      const forecastItems = document.querySelector('.forecast-items');
+      const forecastOptions = document.querySelectorAll('.forecast-option');
+      let isRolling = false;
+      let selectedForecastItems = 2; // Default to 2 items
+
+      const MAX_PLAY_COUNT = 500;
+      let playCount = parseInt(localStorage.getItem('fishShrimpCrabPlayCount') || '0', 10);
+
+      function lockGame() {
+        document.body.innerHTML = `
+          <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:20px;text-align:center;font-family:Arial,sans-serif;background:#f0f0f0;box-sizing:border-box;">
+
+            <h1 style="color:#d4373d;line-height:1.4;font-size:clamp(26px,7vw,42px);margin:0 0 24px;">
+              遊戲使用次數已達上限<br>
+              Game Usage Limit Reached
+            </h1>
+
+            <p style="font-size:clamp(18px,5vw,24px);line-height:1.6;margin:0 0 22px;color:#333;">
+              本遊戲已達授權使用上限，<br>
+              請聯絡客戶服務部獲取協助。<br><br>
+
+              This game has reached its authorized usage limit.<br>
+              Please contact customer service for assistance.
+            </p>
+
+            <p style="font-size:clamp(22px,6vw,30px);font-weight:bold;color:#0066cc;text-decoration:none;word-break:break-all;">
+               liwy5315@gmail.com
+            </p>
+
+          </div>`;
+      }
+
+      if (playCount > MAX_PLAY_COUNT) {
+        lockGame();
+        return;
+      }
+
+      const symbols = ['魚', '蝦', '蟹', '金錢', '葫蘆', '雞'];
+      const symbolsEnglish = {
+        '魚': 'Carp',
+        '蝦': 'Lobster',
+        '蟹': 'Crab',
+        '金錢': 'Gold Coin',
+        '葫蘆': 'Gourd',
+        '雞': 'Rooster'
+      };
+
+      // Forecast option selection
+      forecastOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          forecastOptions.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+          selectedForecastItems = parseInt(option.dataset.items);
+          
+          // Reset forecast items and disable generate button if no dice rolled
+          if (!isRolling) {
+            forecastItems.innerHTML = '';
+            generateForecastBtn.disabled = true;
+          }
+        });
+      });
+
+      const transforms = [
+        'rotateX(0) rotateY(0)',      // front - 金錢
+        'rotateX(-180deg)',           // back - 葫蘆
+        'rotateY(90deg)',             // right - 雞
+        'rotateY(-90deg)',            // left - 魚
+        'rotateX(90deg)',             // top - 蝦
+        'rotateX(-90deg)'             // bottom - 蟹
+      ];
+
+      function getRandomTransform() {
+        return transforms[Math.floor(Math.random() * transforms.length)];
+      }
+
+      function generateForecast() {
+        forecastItems.innerHTML = '';
+        
+        const actualResults = dices.map(() => {
+          return symbols[Math.floor(Math.random() * symbols.length)];
+        });
+        
+        const forecast = [];
+        const random = Math.random();
+        
+        if (random < 0.10) {
+          const randomActualResult = actualResults[Math.floor(Math.random() * actualResults.length)];
+          const randomPosition = Math.floor(Math.random() * selectedForecastItems);
+          
+          for (let i = 0; i < selectedForecastItems; i++) {
+            if (i === randomPosition) {
+              forecast.push(randomActualResult);
+            } else {
+              let availableSymbols = symbols.filter(s => !actualResults.includes(s));
+              forecast.push(availableSymbols[Math.floor(Math.random() * availableSymbols.length)]);
+            }
+          }
+        } else {
+          for (let i = 0; i < selectedForecastItems; i++) {
+            let availableSymbols = symbols.filter(s => !actualResults.includes(s));
+            forecast.push(availableSymbols[Math.floor(Math.random() * availableSymbols.length)]);
+          }
+        }
+
+        forecast.forEach((symbol, index) => {
+          setTimeout(() => {
+            const div = document.createElement('div');
+            div.className = 'forecast-item';
+            div.setAttribute('data-symbol', symbol); 
+            div.textContent = `${symbol} ${symbolsEnglish[symbol]}`;
+            forecastItems.appendChild(div);
+          }, index * 200);
+        });
+
+        generateForecastBtn.disabled = true;
+      }
+
+      function startRolling() {
+
+        playCount++;
+        localStorage.setItem('fishShrimpCrabPlayCount', playCount);
+
+        if (playCount > MAX_PLAY_COUNT) {
+          lockGame();
+          return;
+        }
+
+        isRolling = true;
+        rollButton.disabled = true;
+        stopButton.disabled = false;
+        generateForecastBtn.disabled = false;
+
+        // Clear previous forecast results
+        forecastItems.innerHTML = '';
+
+        dices.forEach((dice, index) => {
+          setTimeout(() => {
+            dice.classList.add('continuous-rolling');
+          }, index * 300);
+        });
+      }
+
+      function stopRolling() {
+        isRolling = false;
+        rollButton.disabled = false;
+        stopButton.disabled = true;
+
+        dices.forEach((dice, index) => {
+          setTimeout(() => {
+            dice.classList.remove('continuous-rolling');
+            dice.style.transform = getRandomTransform();
+          }, index * 300);
+        });
+      }
+
+      // Bind generate forecast button
+      generateForecastBtn.addEventListener('click', generateForecast);
+      generateForecastBtn.disabled = true; // Initially disabled
+
+      rollButton.addEventListener('click', startRolling);
+      stopButton.addEventListener('click', stopRolling);
+    });
+  </script>
+</body>
+</html>
